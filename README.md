@@ -1,0 +1,1 @@
+# Android four startup mode
