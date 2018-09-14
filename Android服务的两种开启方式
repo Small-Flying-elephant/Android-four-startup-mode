@@ -1,0 +1,160 @@
+Service的特点：
+Service是可以在后台执行长时间（生命周期）而不与用户产生UI交互（没有用户界面）的操作。
+
+注意事项：
+1，只能在后台运行，即使用户切换了其他应用，启动的Service仍可在后台运行。
+2，可以和其他组件进行Service绑定并且与之交互，甚至是跨进程通信（ipc）
+3，不能运行在一个独立的进程中，而是依赖与创建服务时所在的应用组件进程。
+4，服务不会自动开启线程，我们需要在服务的内部手动创建子线程，并在这里执行具体的任务。
+
+应用场景举例：
+音乐播放：播放多媒体的时候用户启动了其他Activity，此时要在后台继续播放。
+记录检测：比如检测SD卡上文件的变化；在后台记录你的地理信息位置的改变等。
+其他操作：网络请求、执行文件读写操作或者与 content provider交互。
+
+一.Service的第一种启动方式
+
+采用start的方式开启服务
+使用Service的步骤：
+1.定义一个类继承Service
+2.在Manifest.xml文件中配置该Service
+3.使用Context的startService(Intent)方法启动该Service
+4.不再使用时，调用stopService(Intent)方法停止该服务
+
+使用这种start方式启动的Service的生命周期如下：
+onCreate() ---> onStartCommand() (onStart()方式已过时) --->onDestory()
+
+说明：如果服务已经开启，不会重复的执行onCreate(),而是会调用onStart()和onStartCommand()。服务停止的时候调用onDestory()。服务只会被停止一次。
+
+特点：一旦服务开启跟调用者（开启者）就没有任何关系了。开启者退出了，开启者挂了，服务还在后台长期的运行。开启者不能调用服务里面的方法。
+
+二.Service的第二种启动方式
+
+采用bind的方式开启服务
+使用Service的步骤：
+1.定义一个类继承Service
+2.在Mainfest.xml文件中配置该Service
+3.使用Context的bindService(Intent,ServiceConnection,int)方法启动该Service
+4.不在使用时，调用unbindService(ServiceConnection)方法停止该服务
+
+使用这种开启方式的Service的生命周期如下：
+onCreate -->onBind() -->onunbind() -->onDestory
+
+注意：绑定服务不会调用onStart()或者onStartCommand()方法
+
+特点：bind的方式开启服务，绑定服务，调用者挂了，服务也会跟着挂掉。绑定者可以调用服务里面的方法。
+
+问题:
+绑定者如何调用服务里面的方法呢？
+      public class MyService extends Service {
+
+          public MyService() {
+          }
+
+          @Override
+          public IBinder onBind(Intent intent) {
+              //返回MyBind对象
+              return new MyBinder();
+          }
+
+          private void methodInMyService() {
+              Toast.makeText(getApplicationContext(), "服务里的方法执行了。。。",
+                      Toast.LENGTH_SHORT).show();
+          }
+
+          /**
+           * 该类用于在onBind方法执行后返回的对象，
+           * 该对象对外提供了该服务里的方法
+           */
+          private class MyBinder extends Binder implements IMyBinder {
+
+              @Override
+              public void invokeMethodInMyService() {
+                  methodInMyService();
+              }
+          }
+      }
+
+自定义的MyBinder接口用于保护服务中不想让外界访问的方法。
+    public interface IMyBinder {
+
+         void invokeMethodInMyService();
+
+    }
+
+在Activity中绑定并调用服务里的方法
+简单布局：
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="start"
+            android:text="开启服务"
+            android:textSize="30sp" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="invoke"
+            android:text="调用服务的方法"
+            android:textSize="30sp" />
+    </LinearLayout>
+
+接着在Mainfest.xml文件中配置该Service
+    <service android:name=".MyService"/>
+
+绑定服务的Activity:
+    public class MainActivity extends Activity {
+
+        private MyConn conn;
+        private Intent intent;
+        private IMyBinder myBinder;
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+        }
+
+        //开启服务按钮的点击事件
+        public void start(View view) {
+            intent = new Intent(this, MyService.class);
+            conn = new MyConn();
+            //绑定服务，
+            // 第一个参数是intent对象，表面开启的服务。
+            // 第二个参数是绑定服务的监听器
+            // 第三个参数一般为BIND_AUTO_CREATE常量，表示自动创建bind
+            bindService(intent, conn, BIND_AUTO_CREATE);
+        }
+
+        //调用服务方法按钮的点击事件
+        public void invoke(View view) {
+            myBinder.invokeMethodInMyService();
+        }
+
+        private class MyConn implements ServiceConnection {
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                //iBinder为服务里面onBind()方法返回的对象，所以可以强转为IMyBinder类型
+                myBinder = (IMyBinder) iBinder;
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+            }
+        }
+    }
+
+绑定本地服务调用的方法的步骤：
+1，在服务的内部创建一个内部类提供一个方法，可以间接调用服务的方法
+2，实现服务的onbind方法，返回的就是这个内部类
+3，在activity绑定服务。bindService
+4，在服务成功绑定的回调方法onServiceConnected,会传递过来一个IBinder对象
+5，强制类型转化为自定义的接口类型，调用接口里面的方法。
+
+
+https://www.jianshu.com/p/eeb2bd59853f?utm_campaign=maleskine&utm_content=note&utm_medium=seo_notes&utm_source=recommendation
