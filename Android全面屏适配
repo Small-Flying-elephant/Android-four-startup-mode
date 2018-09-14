@@ -1,0 +1,82 @@
+全面屏手机：全面屏手机大致思路都是压缩额头和下巴，屏幕比例从传统的16：9变为18：9，提高屏占比以及屏幕内的虚拟导航键。
+
+        public static void translucentWindow(Activity activity,View view) {
+            if (activity == null) {
+                return;
+            }
+            Window window = activity.getWindow();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                window.getDecorView().setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN//视图延伸至状态栏区域，状态栏上浮于视图之上
+                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION//视图延伸至导航栏区域，导航栏上浮于视图之上
+                                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE//保持整个View稳定, 常和控制System UI悬浮, 隐藏的Flags共用, 使View不会因为System UI的变化而重新layout
+                );
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                window.setStatusBarColor(0);
+                window.setNavigationBarColor(0);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
+                        | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+            }
+            if (null != view) {
+                view.setFitsSystemWindows(true);
+                view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+            }
+        }
+适配指南：
+
+一、声明最大屏幕高宽比
+在应用配置文件AndroidManifest.xml中显式声明支持的最大屏幕高宽比（maximum aspect ratio）。其中 ratio_float 为高宽比：
+传统屏幕：ratio_float = 16/9 = 1.778 ；
+三星S8屏幕：ratio_float = 18.5/9 = 2.056。
+鉴于目前全面屏屏幕比例，将ratio_float设置为2.1即可适配一众全面屏手机。
+    <meta-data
+      android:name="android.max_aspect"
+      android:value="ratio_float" />
+然而有一点需要注意的是，在Android 7.0以上Google默认支持了分屏模式，即Manifest文件中配置Activity的android:resizeableActivity默认属性为true，在这种情况下并不需要配置Maximum Aspect Ratio即可自动适配全面屏。如果由于某些原因（UI适配等）禁止了分屏模式，这个时候就要注意了！负责将出现上下黑条的显示效果，奇丑无比！
+
+
+
+简单的修改方式：
+只需在 AndroidManifest.xml 的 application 节点下添加 android:resizeableActivity="true" 即可
+    <application
+        android:resizeableActivity="true"></application>
+    </application>
+更具网上的一些沉沉浸式状态栏设置之后，导致NavigationBar 显示透明灰色，而且 APP 布局适配变化比较难
+
+解决办法
+<item name="android:windowTranslucentNavigation">false</item>
+    在 v19 和 v21 的 style.xml 文件中找到 windowTranslucentNavigation 然后设置为 false 即可
+
+
+普通 Android App 适配全面屏
+1 . 启动页，原先的16：9loading页面在18：9的屏幕上会出现上下黑边或拉伸变形那个的情况，
+
+所以启动页的适配可新增2160 * 1080像素的点9图片调用加载。
+
+2 . 应用UI页面，在AndroidManifet里的<application>下声明
+
+<!-- 传统屏幕：ratio_float = 16/9 = 1.778 ；
+     三星S8屏幕：ratio_float = 18.5/9 = 2.056。
+     鉴于目前全面屏屏幕比例，将ratio_float设置为2.1即可适配一众全面屏手机。 -->
+    <meta-data
+        android:name="android.max_aspect"
+        android:value="2.4" />
+3 . 底部虚拟键设置对应的背景色，在BaseActivity初始化时或Activity初始化时写：
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        getWindow().setNavigationBarColor(Color.WHITE);
+    }
+这里是把底部虚拟键的背景设置为白色，目的是与应用页面配色搭配，可自行更改。
+
+设置虚拟必须要设置 FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS，并且不能设置 FLAG_TRANSLUCENT_NAVIGATION。
+
+首先要执行
+
+getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+然后再根据需要改变背景色。
+
+
+https://blog.csdn.net/tanghongchang123/article/details/78543454
