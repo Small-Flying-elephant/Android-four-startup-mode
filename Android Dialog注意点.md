@@ -1,5 +1,4 @@
 1，去掉dialog内容外的灰色阴影。
-
 Dialog.getWindow().clearFlags( WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 注：如果你使用的api为14，那么还可以使用：
 Dialog.getWindow().setDimAmount(0);
