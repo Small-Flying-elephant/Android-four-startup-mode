@@ -1,0 +1,5 @@
+AlarmManager见名知意闹钟管理者，当然不代表AlarmManager只能用来做闹钟应用的，作为一个系统级别的提示服务，其实它的作用和Timer有点相似。
+  1，在指定时长后执行某项活动。
+  2，周期性的执行某种操作。
+并且AlarmManager对象可以配合Intent使用，定时的开启一个Activity，发送一个BroadCast，或者开启一个Service,那么用它实现定时任务再好不过了。
+AlarmManager主要的方法有下面两种，分别是设置单次提醒和多次重复提醒的方法。
