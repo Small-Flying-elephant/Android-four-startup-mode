@@ -1,0 +1,20 @@
+ adb logcat  -v threadtime | findstr "anr"
+ 查看log信息
+
+ adb shell content insert --uri content://settings/secure --bind name:s:android_id --bind value:s:aaea17b7a449997
+修改xaid
+
+adb shell settings put global policy_control null
+显示虚拟键：
+
+adb shell settings put global policy_control immersive.full=*
+隐藏虚拟键
+
+adb shell am start -n Activity的名字
+启动activity
+
+adb shell pm path 应用包名
+找到apk的位置
+
+adb pull  找到apk的位置
+取出apk
