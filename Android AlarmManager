@@ -2,4 +2,194 @@ AlarmManager见名知意闹钟管理者，当然不代表AlarmManager只能用�
   1，在指定时长后执行某项活动。
   2，周期性的执行某种操作。
 并且AlarmManager对象可以配合Intent使用，定时的开启一个Activity，发送一个BroadCast，或者开启一个Service,那么用它实现定时任务再好不过了。
-AlarmManager主要的方法有下面两种，分别是设置单次提醒和多次重复提醒的方法。
+
+
+
+AlarmManager初体验：
+    AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+    Intent intent = new Intent(this, AlarmService.class);
+    intent.setAction(AlarmService.ACTION_ALARM);
+    PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    if(Build.VERSION.SDK_INT < 19){
+        am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 5000, pendingIntent);
+    }else{
+        am.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 5000, pendingIntent);
+    }
+    这个例子就是5秒钟后发送一个Action为AlarmService.ACTION_ALARM的Intent到AlarmService。
+
+
+
+AlarmManager的常用API：
+
+  set(int type, long triggerAtMillis, PendingIntent operation)
+该方法用于设置一次性闹钟，第一个参数表示闹钟类型，第二个参数表示闹钟执行时间，第三个参数表示闹钟响应动作。
+
+  setRepeating(int type, long triggerAtMillis,long intervalMillis, PendingIntent operation)
+该方法用于设置重复闹钟，第一个参数表示闹钟类型，第二个参数表示闹钟首次执行时间，第三个参数表示闹钟两次执行的间隔时间，第四个参数表示闹钟响应动作。
+
+  setInexactRepeating(int type, long triggerAtMillis,long intervalMillis, PendingIntent operation)
+该方法也用于设置重复闹钟，与第二个方法相似，不过闹钟时间不精确。
+
+  setExact(int type, long triggerAtMillis, PendingIntent operation)
+  setWindow(int type, long windowStartMillis, long windowLengthMillis,PendingIntent operation)
+方法1和方法2在SDK_INT 19以前是精确的闹钟,19以后为了节能省电（减少系统唤醒和电池使用）。使用Alarm.set()和Alarm.setRepeating()已经不能保证精确性,不过还好Google又提供了两个精确的Alarm方法setWindow()和setExact(),所以19以后需要精确的闹钟就需要上面两个方法,具体原因后面再说
+
+  cancel(PendingIntent operation)
+取消Intent相同的闹钟,这里是根据Intent中filterEquals(Intent other)方法来判断是否相同
+    public boolean filterEquals(Intent other) {
+          if (other == null) {
+              return false;
+          }
+          if (!Objects.equals(this.mAction, other.mAction)) return false;
+          if (!Objects.equals(this.mData, other.mData)) return false;
+          if (!Objects.equals(this.mType, other.mType)) return false;
+          if (!Objects.equals(this.mPackage, other.mPackage)) return false;
+          if (!Objects.equals(this.mComponent, other.mComponent)) return false;
+          if (!Objects.equals(this.mCategories, other.mCategories)) return false;
+
+          return true;
+      }
+从方法体可以看出mAction、mData、mType、mPackage、mComponent、mCategories这几个完全一样就认定为同一Intent
+
+
+
+闹钟类型
+这个闹钟类型就是前面setxxx()方法第一个参数int type.
+  AlarmManager.ELAPSED_REALTIME：使用相对时间，可以通过SystemClock.elapsedRealtime() 获取（从开机到现在的毫秒数，包括手机的睡眠时间），设备休眠时并不会唤醒设备。
+  AlarmManager.ELAPSED_REALTIME_WAKEUP：与ELAPSED_REALTIME基本功能一样，只是会在设备休眠时唤醒设备。
+  AlarmManager.RTC：使用绝对时间，可以通过 System.currentTimeMillis()获取，设备休眠时并不会唤醒设备。
+  AlarmManager.RTC_WAKEUP: 与RTC基本功能一样，只是会在设备休眠时唤醒设备。
+
+
+举个例子：
+  1.点击按钮,AlarmManager3秒后发送intent到service弹出toast提示.
+
+  activity代码：
+      public class MainActivity extends AppCompatActivity {
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+
+        }
+
+        public void alarm(View v){
+            AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+            Intent intent = new Intent(this, AlarmService.class);
+            intent.setAction(AlarmService.ACTION_ALARM);
+            PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            if(Build.VERSION.SDK_INT < 19){
+                am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 3000, pendingIntent);
+            }else{
+                am.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 3000, pendingIntent);
+            }
+        }
+
+    }
+
+  service代码：
+    public class AlarmService extends Service {
+
+      public static String ACTION_ALARM = "action_alarm";
+      private Handler mHanler = new Handler(Looper.getMainLooper());
+
+      @Nullable
+      @Override
+      public IBinder onBind(Intent intent) {
+          return null;
+      }
+
+
+      @Override
+      public int onStartCommand(Intent intent, int flags, int startId) {
+          mHanler.post(new Runnable() {
+              @Override
+              public void run() {
+                  Toast.makeText(AlarmService.this, "闹钟来啦", Toast.LENGTH_SHORT).show();
+              }
+          });
+          return super.onStartCommand(intent, flags, startId);
+      }
+  }
+
+
+2.具体年月日启动闹钟：
+  核心代码如下：
+    Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR,2016);
+        calendar.set(Calendar.MONTH,Calendar.DECEMBER);
+        calendar.set(Calendar.DAY_OF_MONTH,16);
+        calendar.set(Calendar.HOUR_OF_DAY,11);
+        calendar.set(Calendar.MINUTE,50);
+        calendar.set(Calendar.SECOND,0);
+        //设定时间为 2016年12月16日11点50分0秒
+
+        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        Intent intent = new Intent(this, AlarmService.class);
+        intent.setAction(AlarmService.ACTION_ALARM);
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        if(Build.VERSION.SDK_INT < 19){
+            am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        }else{
+            am.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        }
+  效果跟上面没区别。
+
+
+
+AlarmManager闹钟不准原因
+  前面介绍的所有的set方法其实都是调用内部的一个private的方法setImpl（），只是不同的set方法传入的值不同而已
+      private void setImpl(int type, long triggerAtMillis, long windowMillis, long intervalMillis,
+              int flags, PendingIntent operation, final OnAlarmListener listener, String listenerTag,
+              Handler targetHandler, WorkSource workSource, AlarmClockInfo alarmClock) {
+          if (triggerAtMillis < 0) {
+              /* NOTYET
+              if (mAlwaysExact) {
+                  // Fatal error for KLP+ apps to use negative trigger times
+                  throw new IllegalArgumentException("Invalid alarm trigger time "
+                          + triggerAtMillis);
+              }
+              */
+              triggerAtMillis = 0;
+          }
+
+          ......
+
+          try {
+              mService.set(mPackageName, type, triggerAtMillis, windowMillis, intervalMillis, flags,
+                      operation, recipientWrapper, listenerTag, workSource, alarmClock);
+          } catch (RemoteException ex) {
+              throw ex.rethrowFromSystemServer();
+          }
+      }
+这里只展示了相关代码,而具体控是否精确是靠windowMillis这个参数。
+
+在看看普通的set()与setRepeating()方法如何传递windowMillis参数。
+    public void set(int type, long triggerAtMillis, PendingIntent operation) {
+            setImpl(type, triggerAtMillis, legacyExactLength(), 0, 0, operation, null, null,
+                    null, null, null);
+        }
+
+    public void setRepeating(int type, long triggerAtMillis,
+            long intervalMillis, PendingIntent operation) {
+        setImpl(type, triggerAtMillis, legacyExactLength(), intervalMillis, 0, operation,
+                null, null, null, null, null);
+    }
+
+可以发现windowMillis参数为legacyExactLength()方法返回值的,那么我们接着在看legacyExactLength方法：
+      AlarmManager(IAlarmMamager service,Context ctx){
+      mService = service;
+      mPackageName = ctx.getPackageName();
+      mTargetSdkVersion = ctx.getApplicationInfo().mTargetSdkVersion;
+      mAlwaysExact = (mTargetSdkVersion < Build,VERSION_CODES.KITKAT);
+      mMainThreadHandler = new Handler(ctx.getMainLooper());
+      }
+      private long legacyExactLength(){
+        return (mAlwaysExact ? WINDOW_EXACT : WINDOW_HEURISTIC);
+      }
+      可以看出mAlwaysExact这个变量控制着该方法的返回值，如果是小于API19的版本会使用
+      WINDOW_EXACT参数，这个参数是0（意思就是区间设置为0，那么就会按照triggerAtMillis这个时间准时触发，也就是精准触发）另一个参数WINDOW_HEURISTIC的值是-1，这个值具体的用法就要看AlarmManagerService具体的实现了，反正只要知道这个值是不精准就可以。而setExact()这个值为WINDOW_EXACT,setWindow()的话这个值你可以自己传所以19以后他们是精准的.
