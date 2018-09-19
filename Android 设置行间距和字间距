@@ -1,0 +1,20 @@
+在你要设置的TextView中加入如下代码：
+
+1、android:lineSpacingExtra
+  设置行间距，如”8dp”。
+
+2、android:lineSpacingMultiplier
+    设置行间距的倍数，如”1.5″。
+
+代码里面设置：setLineSpacing
+
+
+android:textScaleX：控制字体水平方向的缩放，默认值1.0f，值是floatJava中setScaleX(2.0f);
+-------------------------------------------------------------------------------------------------------
+
+自动换行通过 android:singleLine 设置，默认为 false。
+如需要自动换行，可以用：
+  android:singleLine = "false"
+如果要在一行显示完，不换行，可以用：
+  android:singleLine = "true"
+除此之外，可以也设置多行显示不完，添加个maxLines的属性即可！
