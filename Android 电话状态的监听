@@ -1,0 +1,51 @@
+1，开启一个广播。
+  public class PhoneStateChangedReceiver extends BroadcastReceiver {
+
+      private static final String PHONE_STATE_OFFHOOK = "OFFHOOK";
+      private static final String PHONE_STATE_IDLE = "IDLE";
+      private static final String PHONE_STATE_RINGING = "RINGING";
+
+      @Override
+      public void onReceive(Context context, Intent intent) {
+
+          String action = intent.getAction();
+          LauncherLog.releaseLog(PhoneStateHelper.TAG, "PhoneStateReceiver action: " + action);
+          Log.e(PhoneStateHelper.TAG, "PhoneStateReceiver action: " + action);
+
+          if (TextUtils.isEmpty(action)) {
+              return;
+          }
+
+          // 去电
+          if (action.equals(Intent.ACTION_NEW_OUTGOING_CALL)) {
+              String phoneNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
+              PhoneStateHelper.instance.transToOtherState(PhoneStateMachine.PHONE_OUT_GOING_STATE, phoneNumber);
+          } else {
+              String phoneState = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
+              LauncherLog.releaseLog(PhoneStateHelper.TAG, "PhoneStateReceiver onReceive state: " + phoneState);
+              Log.e(PhoneStateHelper.TAG, "PhoneStateReceiver onReceive state: " + phoneState);
+
+              String extraIncomingNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
+              LauncherLog.releaseLog(PhoneStateHelper.TAG, "PhoneStateReceiver onReceive extraIncomingNumber: " + extraIncomingNumber);
+              Log.e(PhoneStateHelper.TAG, "PhoneStateReceiver onReceive extraIncomingNumber: " + extraIncomingNumber);
+
+              if (PHONE_STATE_IDLE.equals(phoneState)) {
+                  // 空闲/挂断
+                  PhoneStateHelper.instance.transToOtherState(PhoneStateMachine.PHONE_IDLE_STATE, extraIncomingNumber);
+
+              } else if (PHONE_STATE_OFFHOOK.equals(phoneState)) {
+                  // 摘机
+                  PhoneStateHelper.instance.transToOtherState(PhoneStateMachine.PHONE_RINGING_OFFHOOK_STATE, extraIncomingNumber);
+
+
+              } else if (PHONE_STATE_RINGING.equals(phoneState)) {
+                  // 来电/响铃
+                  PhoneStateHelper.instance.transToOtherState(PhoneStateMachine.PHONE_RINGING_STATE, extraIncomingNumber);
+
+
+              } else {
+
+              }
+          }
+      }
+  }
