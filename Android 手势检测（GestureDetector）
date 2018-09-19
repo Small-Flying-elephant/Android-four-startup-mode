@@ -26,6 +26,13 @@ launcher代码：
        }
 
        private GestureDetector.SimpleOnGestureListener mHotSeatGestureListener = new GestureDetector.SimpleOnGestureListener() {
+           /**
+           * 参数意义
+           * e1:手指触摸屏幕开始的位置
+           * e2:手指离开屏幕的位置
+           * velocityX:表示横着滑动x轴的距离   单位  px/s
+           * velocityY:表示横着滑动y轴的距离
+           */
            @Override
            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
                if (e1.getY() - e2.getY() > mTouchSlop && Math.abs(velocityY) > mMinFlingVelocity &&
