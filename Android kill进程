@@ -1,0 +1,22 @@
+System.exit(0);
+android.os.Process.killProcess(android.os.Process.myPid());
+
+kill 掉进程之前需要先将activityfinish掉。
+如果a跳到b，b跳到c，中间没有finish掉任何一个activity。在activity的生命周期中调用System.exit(0);，这是会重启到a,如果在onclick事件里面会跳转到b。
+
+System.exit(code)
+Causes the VM to stop running and the program to exit with the given exit status. If runFinalizersOnExit(boolean) has been previously invoked with a true argument,
+then all objects will be properly garbage-collected and finalized first.
+
+
+
+Process.killProcess(pid)
+Kill the process with the given PID. Note that, though this API allows us to request to kill any process based on its PID, the kernel will still impose standard
+restrictions on which PIDs you are actually able to kill. Typically this means only the process running the caller's packages/application and any additional processes
+ created by that app; packages sharing a common UID will also be able to kill each other's processes.
+
+ 一个是Stop VM ,一个是Kill Process ,上面说了一个 进程对应一个 VM ，那么不管是调用哪一个方法都会用看到同样的效果。
+ 当我们在代码中调用System.exit 或者 Process.KillProcess 的时候肯定会结束掉当前线程，但是会不会重启应用就要根据你调用结束时整个属于这个应用的所有Task的状态来决定
+
+
+ https://blog.csdn.net/just_keep/article/details/42558579
