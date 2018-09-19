@@ -1,0 +1,46 @@
+shape xml文件：
+    <?xml version="1.0" encoding="utf-8"?>
+    <shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <solid android:color="#CC333333"></solid>
+        <corners android:radius="25dp"></corners>
+        <padding android:bottom="10dp"
+            android:left="25dp"
+            android:right="25dp"
+            android:top="10dp"></padding>
+    </shape>
+
+xml文件：
+
+    <?xml version="1.0" encoding="utf-8"?>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical" android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/feedback_toast" >
+        <TextView
+            android:id="@+id/feedback_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ffffff"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"
+            />
+    </LinearLayout>
+
+java文件中：
+
+      private void showToast(Context context,String msg) {
+          if (mToast == null){
+        mToast = new Toast(context);
+        mToast.setGravity(Gravity.CENTER|Gravity.BOTTOM,0,getContext().getResources().getDimensionPixelOffset(R.dimen.feedback_no_toast));
+        mToast.setDuration(Toast.LENGTH_SHORT);
+        LayoutInflater inflater = LayoutInflater.from(context);
+        LinearLayout textViewll = (LinearLayout)inflater.inflate(R.layout.activity_feedback_toast, null);
+        mTvToast = (TextView) textViewll.findViewById(R.id.feedback_tv);
+        mToast.setView(textViewll);
+      }
+      if (mTvToast != null){
+        mTvToast.setText(msg);
+        mToast.show();
+      }
+    }
