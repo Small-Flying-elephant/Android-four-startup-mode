@@ -1,0 +1,23 @@
+Dialog的生命周期一共经历6种方法：
+onCreate ---> show() --->onStart() --->cancel() ---> onDismiss() -- >Stop()
+
+1,Dialog仅在第一次启动时候会执行onCreate()方法（之后无论该Dialog执行Dismiss（）.cancel()，Stop(),Dialog都不会执行onCreate()方法）。
+
+2，show() 和onStart（）在每次Dialog显示时都会依次执行。
+
+3，onDismiss（）和stop()在每次Dialog消失的时候都会依次执行。
+
+4，cancel()是点击back按钮或者Dialog外部时触发，然后依次执行onDismiss（）和stop().
+
+举例：
+    1，点击显示按钮，第一次显示dialog，然后点击back键返回。
+            show() ---> onCreate() ---->onStart();
+            cancel() ----->onDismiss()---->Stop();
+
+    2，再次点击显示按钮，然后点击Dialog外部。
+            show() ----->onStart();
+            cancel() ------>onDismiss() ----->Stop();
+
+    3,再次点击显示按钮，然后执行Dialog.dismiss()方法。
+            show() ----->onStart();
+            onDismiss()--->onStop();
