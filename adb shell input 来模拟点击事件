@@ -1,0 +1,15 @@
+先列举 input keyevent 几个比较常用的code值：
+  input keyevent 3    // Home
+  input keyevent 4    // Back
+  input keyevent 19  //Up
+  input keyevent 20  //Down
+  input keyevent 21  //Left
+  input keyevent 22  //Right
+  input keyevent 23  //Select/Ok
+  input keyevent 24  //Volume+
+  input keyevent 25  // Volume-
+  input keyevent 82  // Menu 菜单
+
+  input tap 600 800
+
+  input swipe模拟的是滑动事件，input swipe <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)，需要将起始的坐标传进去。
