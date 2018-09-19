@@ -1,0 +1,64 @@
+
+private void registerLoginReceiver(){
+    mCortanaLoginReceiver = new CortanaLoginReceiver();
+    IntentFilter intentFilter = new IntentFilter();
+    intentFilter.addAction(LogInActivity.ACTION_LOGIN);
+    registerReceiver(mCortanaLoginReceiver, intentFilter);
+}
+@Override
+protected void onDestroy() {
+    if (null != mCortanaLoginReceiver) {
+        unregisterReceiver(mCortanaLoginReceiver);
+    }
+    super.onDestroy();
+}
+}public class CortanaLoginReceiver  extends BroadcastReceiver {
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        String action = intent.getAction();
+        if (action.equals(LogInActivity.ACTION_LOGIN)) {
+            if (null != mIntentLogin) {
+                mIntentLogin.setVisibility(View.INVISIBLE);
+            }
+        }
+    }
+}
+public static final String ACTION_LOGIN = "com.ksmobile.thirdsdk.cortana.ui.LogInActivity_action";
+private static void sendLoginBroadcast(Context context){
+    Intent intent=new Intent();
+    intent.setAction(ACTION_LOGIN);
+    context.sendBroadcast(intent);
+}
+static class  CortanaLauncherAuthListener implements ICortanaAuthListener{
+    private SoftReference<LogInActivity> mSoftReference;
+    private String source = "";
+    CortanaLauncherAuthListener(LogInActivity logInActivity,String source){
+        mSoftReference = new SoftReference<LogInActivity>(logInActivity);
+        this.source    = source;
+    }
+
+    @Override
+    public void onCompleted(CortanaAuthResult cortanaAuthResult) {
+        CortanaUtils.report(true, CortanaInfocConstants.MODEL_LAUNCHER_CORTANA_LOGIN,CortanaInfocConstants.KEY_LOGIN,"1",CortanaInfocConstants.KEY_VALUE,source);
+        if(mSoftReference != null) {
+            final LogInActivity instance = mSoftReference.get();
+            if(instance != null) {
+                sendLoginBroadcast(instance);
+                instance.handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        instance.inflateProgress();
+                    }
+                });
+                instance.handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        instance.start();
+
+                    }
+                }, 700);
+            }
+        }
+        Log.d("linsheng", "onCompleted: " + "onCompleted");
+    }
