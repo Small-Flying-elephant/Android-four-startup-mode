@@ -1,0 +1,181 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "19.0.0"
+
+    defaultConfig {
+        applicationId "com.example.my.app"
+        minSdkVersion 8
+        targetSdkVersion 19
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+
+     // Module dependency
+    compile project(":lib")
+
+    // Remote binary dependency
+    compile 'com.android.support:appcompat-v7:19.0.1'
+
+    // Local binary dependency
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+来源： https://blog.csdn.net/sinat_34383316/article/details/69661920
+Android studio 中有一个顶级的build.gradle文件，每个module还有一个自己的build。gradle。这个文件是适用Groovy语法和Android plugin for gradle元素配置文件。
+
+第一句：apply plugin:'com.android.application'说明在这个build文件中使用Android plugin for Gradle，有了这句话，那些针对Android的元素才有意义。比如Android{....}这个就是配置所有针对Android项目build时的选项。
+·compileSdkVersion:编译时用的sdk版本。
+·buildToolsVersion:build工具的版本。
+·defaultConfig:动态的在build时配置AndroidManifest.xml里面的项目，defaultConfig里面配置可以覆盖mainfest里面的配置。
+·buildTypes:配置如何构建和打包你的APP，默认有debug和release两个类型。debug类型包含调试时的信息，并且有debug key签名。release默认是不包含签名的。本例中release用到了Proguard。
+·dependencies：在Android{.....}这个元素之外，配置此模块的依赖。
+    ·模块依赖：compile project(".lib"),表明模块依赖于lib模块，编译的时候系统会把lib模块包含进来。
+    ·远程的二进制依赖：compile 'com.android.support:appcompat-v7:19.0.1',当本地没有此依赖时会默认从Maven Central Repository下载相应的依赖。从哪里下载可以在顶级的build文件中配置。
+    ·本地二进制依赖：compile file tree（dir:"libs",include:['.jar']）,把jar包拷贝到libs文件夹下，compile file Tree(dir:'libs',include:['*.jar'])的意思是，app/libs下的所有jar包含进来。
+ProGuard
+
+proGuard的作用是在byte级别对你的APP进行分析优化，使你的APP变得更小，更快。
+android {
+    ...
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+getDefaultProgurdFile('Progurd-android.txt')获得默认的ProGuard配置。每个模块也都有模块级别的ProGuard规则，在proguard-rules.pro这个文件里，当然你也可以自己配置ProGuard规则。
+Application ID
+
+defaultConfig {
+        applicationId "com.example.my.app"
+        minSdkVersion 15
+        targetSdkVersion 19
+        versionCode 1
+        versionName "1.0"
+    }
+application id是用来唯一标识要发行的应用。
+系统允许你对不同的产品类型设定不同的id，比如免费版和高级版。
+productFlavors {
+        pro {
+            applicationId = "com.example.my.pkg.pro"
+        }
+        free {
+            applicationId = "com.example.my.pkg.free"
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+        }
+    }
+配置签名
+
+debug版本与release版本的区别在于是否可以在一个安全的设备上debug和APK如何被签名的。在debug版本中，系统会提供一个默认的key来签名和已知的证书来授权App，避免在构建的时候出现密码提示。但是在release版本中，除非你主动提供一个key，不然系统是不会构建此项目的。
+Release签名步骤
+
+创建keystore。keystore是一个包含一系列私钥的二进制文件，这个文件必须妥善保管。
+创建一个私钥。一个私钥代表着一个app实体。
+在build文件中配置
+
+android {
+    ...
+    defaultConfig { ... }
+    signingConfigs {
+        release {
+            storeFile file("myreleasekey.keystore")
+            storePassword "password"
+            keyAlias "MyReleaseKey"
+            keyPassword "password"
+        }
+    }
+    buildTypes {
+        release {
+            ...
+            signingConfig signingConfigs.release
+        }
+    }
+}
+Build变量
+
+定义productFlavors
+
+有时你需要对同一个App发行不同的版本，如免费版、付费版之类的。这时你就需要用到productFlavors了。
+
+android {
+    ...
+    defaultConfig { ... }
+    signingConfigs { ... }
+    buildTypes { ... }
+    productFlavors {
+        demo {
+            applicationId "com.buildsystemexample.app.demo"
+            versionName "1.0-demo"
+        }
+        full {
+            applicationId "com.buildsystemexample.app.full"
+            versionName "1.0-full"
+        }
+    }
+}
+productFlavors里的配置会覆盖defaultConfig里的配置，如上配置后，系统会为每一个不同版本使用一个不同的id。
+
+-------------------------------------------------------------------------------------------------------------------------------------------------
+productFlavors实现差异化打包
+android {
+    ....
+
+    productFlavors {
+        flavor1 {
+            minSdkVersion 14
+        }
+    }
+}
+上例定义了一个flavor：flavor1,并指定了应用的minSdkVersion为14（当然还可以配置更多的属性）。与此同时，Gradle还会为该flavor关联对应的sourceSet,默认位置为src/<flavorName>目录，对应到本例就是src/flavor1
+配置不同的应用名
+gradle在构建应用时，会优先使用flavor所属dataSet中的同名资源。所以，解决的思路就是在flavor的dataSet中添加同名的字符串资源，已覆盖默认的资源。下面以适配wandoujia渠道的应用名进行介绍。
+首先，在build.gradle配置文件中添加如下flavor：
+android {
+    productFlavors {
+        wandoujia {
+        }
+    }
+}
+上面的配置会默认src/wandoujia目录为wandoujia flavor的dataSet。接下来，在src目录内创建wandoujia目录，并添加如下应用名字符串资源（src/wandoujia/res/values/appname.xml）:
+<resources><string name="app_name">NewApp_Name</string></resources>
+默认的应用名字符串资源如下（src/main/res/values/strings.xml）:
+<resources><string name="app_name">App_Name</string></resources>
+最后，运行gradle assembleWandoujia命令就可生产NewApp_Name的应用。
+控制是否自动更新
+gradle会在generateSources阶段为flavor生成一个BuildConfig.java文件。BuildConfig类默认提供了一些常量字段，比如应用的版本名（version_name）,应用的包名（PACKAGE_NAME）等。下面示例假设wandoujia市场默认禁止自动更新功能。
+
+android {
+    defaultConfig {
+        buildConfigField "boolean", "AUTO_UPDATES", "true"
+    }
+
+    productFlavors {
+        wandoujia {
+            buildConfigField "boolean", "AUTO_UPDATES", "false"
+        }
+    }
+
+}
+
+
+作者：JonyLiu
+链接：https://www.jianshu.com/p/1ae5c85d2ff2
+來源：简书
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+上面的代码会BuildConfig类中生成AUTO_UPDATES布尔常量，默认值为true，在使用wandoujia时，该值会被设置为false。接下来就可以在代码中使用AUTO_UPDATES常量来判断是否开启自动更新功能了。
