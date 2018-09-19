@@ -1,0 +1,42 @@
+
+
+1,代码中：
+    wizardButton.setTypeface(TypefaceUtils.load(getContext().getAssets(),
+            AppConfig.OPENSANSLIGHT_FONT_PATH), Typeface.BOLD);
+    AppConfig：
+    public class AppConfig {
+        public static final String SDCARD_ROOT_DIR = "CMLauncher";
+    //    public static final String OPENSANSLIGHT_FONT_PATH = "fonts/OpenSans-Light-bold.ttf";
+        public static final String OPENSANSLIGHT_FONT_PATH = "sans-serif-light";
+    }
+TypefaceUtils：
+    在单独的一个文件内容里面。
+http://fromwiz.com/share/s/2aM8GH0jSQqf2n2xfY1Lb3Wc3CugP022uQ162Nx51b0njLfD
+
+（2），第二种方法：
+    TextView mGuideTitle = (TextView) mRootView.findViewById(R.id.guide_password_title);
+    TextView mGuideDescribe = (TextView) mRootView.findViewById(R.id.guide_password_describe);
+    TextView mGuideBtn = (TextView) mRootView.findViewById(R.id.guide_password_button_confirm);
+    TextView cancelBtn = (TextView) mRootView.findViewById(R.id.guide_password_button_cancel);
+    ImageView mGuideImage = (ImageView) mRootView.findViewById(R.id.guide_password_img);
+
+    final Typeface typeface = Typeface.create("sans-serif-light", Typeface.NORMAL);
+    mGuideTitle.setTypeface(typeface);
+    mGuideDescribe.setTypeface(typeface);
+    mGuideBtn.setTypeface(typeface);
+    cancelBtn.setTypeface(typeface);
+
+
+2，在xml中设置字体：
+    <TextView
+        android:id="@+id/title_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="29dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="33dp"
+        android:singleLine="true"
+        android:textColor="#000000"
+        android:fontFamily="sans-serif-light"
+        android:textSize="15sp" />
