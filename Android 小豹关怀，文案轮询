@@ -1,0 +1,192 @@
+public class CheetahCareAppTotalTextPolling {
+
+    private static CheetahCareAppTotalTextPolling instance;
+    private String[] mAppTotalMessages;
+    private String[] mOkMessages;
+    private String[] mNightMessage;
+    private String[] mPhoneTotalMessage;
+
+    private CheetahCareAppTotalTextPolling() {
+    }
+
+    public static CheetahCareAppTotalTextPolling getInstance() {
+        if (instance == null) {
+            instance = new CheetahCareAppTotalTextPolling();
+        }
+        return instance;
+    }
+
+    public String getCheetahText(int index) {
+        Resources res = LauncherApplication.getAppContext().getResources();
+        mAppTotalMessages = res.getStringArray(R.array.message_cheetahcare_app_total);
+        int length = getCheetahTextSize();
+        if (length > 0) {
+            if (index < 0) {
+                index = 0;
+            } else if (index > (length - 1)) {
+                index = index % length;
+            }
+            return mAppTotalMessages[(length - 1)-index];
+        }
+        return null;
+    }
+
+
+    public int getCheetahTextSize() {
+        return ((null == mAppTotalMessages) ? 0 : mAppTotalMessages.length);
+    }
+
+    public int getNextIndex(int index) {
+        int length = getCheetahTextSize();
+        if (length > 0) {
+            if (index < 0) {
+                index = 0;
+            } else if (index > (length - 1)) {
+                index = index % length;
+            }
+            return index;
+        }
+        return 0;
+    }
+
+
+    public String getCheetahCareAppTotalByOrder() {
+
+        int preIndex = CommonPreference.getInstance().getTextShowIndex();
+
+        int nextIndex = CheetahCareAppTotalTextPolling.getInstance().getNextIndex(preIndex + 1);
+        String cheetahcare = CheetahCareAppTotalTextPolling.getInstance().getCheetahText(nextIndex);
+        CommonPreference.getInstance().saveTextShowIndex(nextIndex);
+        return cheetahcare;
+    }
+
+
+    public String getCheetahTextOk(int indexOK) {
+        Resources res = LauncherApplication.getAppContext().getResources();
+        mOkMessages = res.getStringArray(R.array.message_cheetahcare_app_ok);
+        int length = getCheetahTextOKSize();
+        if (length > 0) {
+            if (indexOK < 0) {
+                indexOK = 0;
+            } else if (indexOK > (length - 1)) {
+                indexOK = indexOK % length;
+            }
+            return mOkMessages[(length - 1)-indexOK];
+        }
+        return null;
+    }
+
+    public int getCheetahTextOKSize() {
+        return ((null == mOkMessages) ? 0 : mOkMessages.length);
+    }
+
+    public int getNextIndexOK(int indexOK) {
+        int lengthOK = getCheetahTextOKSize();
+        if (lengthOK > 0) {
+            if (indexOK < 0) {
+                indexOK = 0;
+            } else if (indexOK > (lengthOK - 1)) {
+                indexOK = indexOK % lengthOK;
+            }
+            return indexOK;
+        }
+        return 0;
+    }
+
+    public String getCheetahCareAppTotalOKByOrder() {
+
+        int preIndexok = CommonPreference.getInstance().getTextOkShowIndex();
+
+        int nextIndex = CheetahCareAppTotalTextPolling.getInstance().getNextIndexOK(preIndexok + 1);
+        String cheetahcareok = CheetahCareAppTotalTextPolling.getInstance().getCheetahTextOk(nextIndex);
+        CommonPreference.getInstance().saveTextOkShowIndex(nextIndex);
+        return cheetahcareok;
+    }
+
+
+    public String getCheetahTextNight(int indexNight) {
+        Resources res = LauncherApplication.getAppContext().getResources();
+        mNightMessage = res.getStringArray(R.array.message_cheetahcare_overnight);
+        int lengthNight = getCheetahTextNightSize();
+        if (lengthNight > 0) {
+            if (indexNight < 0) {
+                indexNight = 0;
+            } else if (indexNight > (lengthNight - 1)) {
+                indexNight = indexNight % lengthNight;
+            }
+            return mNightMessage[(lengthNight - 1)-indexNight];
+        }
+        return null;
+    }
+
+    public int getCheetahTextNightSize() {
+        return ((null == mNightMessage) ? 0 : mNightMessage.length);
+    }
+
+    public int getNextIndexNight(int indexNight) {
+        int lengthNight = getCheetahTextNightSize();
+        if (lengthNight > 0) {
+            if (indexNight < 0) {
+                indexNight = 0;
+            } else if (indexNight > (lengthNight - 1)) {
+                indexNight = indexNight % lengthNight;
+            }
+            return indexNight;
+        }
+        return 0;
+    }
+
+    public String getCheetahCareAppTotalNightByOrder() {
+
+        int preIndexNight = CommonPreference.getInstance().getTextNightShowIndex();
+
+        int nextIndexNight = CheetahCareAppTotalTextPolling.getInstance().getNextIndexNight(preIndexNight + 1);
+        String cheetahcareok = CheetahCareAppTotalTextPolling.getInstance().getCheetahTextNight(nextIndexNight);
+        CommonPreference.getInstance().saveTextNightShowIndex(nextIndexNight);
+        return cheetahcareok;
+    }
+
+    public String getCheetahTextPhone(int indexPhone) {
+        Resources res = LauncherApplication.getAppContext().getResources();
+        mPhoneTotalMessage = res.getStringArray(R.array.message_cheetahcare_phone_app);
+        int lengthPhone = getCheetahTextPhoneSize();
+        if (lengthPhone > 0) {
+            if (indexPhone < 0) {
+                indexPhone = 0;
+            } else if (indexPhone > (lengthPhone - 1)) {
+                indexPhone = indexPhone % lengthPhone;
+            }
+            return mPhoneTotalMessage[(lengthPhone - 1)-indexPhone];
+        }
+        return null;
+    }
+
+    public int getCheetahTextPhoneSize() {
+        return ((null == mPhoneTotalMessage) ? 0 : mPhoneTotalMessage.length);
+    }
+
+    public int getNextIndexPhone(int indexPhone) {
+        int lengthPhone = getCheetahTextPhoneSize();
+        if (lengthPhone > 0) {
+            if (indexPhone < 0) {
+                indexPhone = 0;
+            } else if (indexPhone > (lengthPhone - 1)) {
+                indexPhone = indexPhone % lengthPhone;
+            }
+            return indexPhone;
+        }
+        return 0;
+    }
+
+    public String getCheetahCareAppTotalPhoneByOrder() {
+
+        int preIndexPhone = CommonPreference.getInstance().getTextPhoneShowIndex();
+
+        int nextIndexPhone = CheetahCareAppTotalTextPolling.getInstance().getNextIndexPhone(preIndexPhone + 1);
+        String cheetahcareok = CheetahCareAppTotalTextPolling.getInstance().getCheetahTextPhone(nextIndexPhone);
+        CommonPreference.getInstance().saveTextPhoneShowIndex(nextIndexPhone);
+        return cheetahcareok;
+    }
+
+
+}
