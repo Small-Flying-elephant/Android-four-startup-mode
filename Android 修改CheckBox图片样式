@@ -1,0 +1,23 @@
+checkbox_style.xml:
+  <?xml version="1.0" encoding="utf-8"?>
+  <selector xmlns:android="http://schemas.android.com/apk/res/android">
+      <item android:drawable="@drawable/start_page_checkbox" android:state_checked="true"/>
+      <item android:drawable="@drawable/start_page_checkbox_unselected" android:state_checked="false"/>
+      <item android:drawable="@drawable/start_page_checkbox_unselected"/>
+  </selector>
+
+
+styles.xml:
+    <style name="StartPageCheckboxStyle" parent="@android:style/Widget.CompoundButton.CheckBox">
+      <item name="android:button">@drawable/checkbox_style</item>
+    </style>
+
+
+
+    <CheckBox
+            android:id="@+id/cb_home"
+            style="@style/StartPageCheckboxStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:clickable="false" />
