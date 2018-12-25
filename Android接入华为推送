@@ -1,0 +1,13 @@
+#Android接入华为推送
+
+*<p align="right">林生 </p>*
+
+###引用
+
+>*一盏灯， 一片昏黄； 一简书， 一杯淡茶。 守着那一份淡定， 品读属于自己的寂寞。 保持淡定， 才能欣赏到最美丽的风景！ 保持淡定， 人生从此不再寂寞。*
+
+####注册成为华为开发者
+https://hwid1.vmall.com/CAS/portal/userRegister/regbyemail.html?service=https%3A%2F%2Flogin.vmall.com%2Foauth2%2Fv2%2Fauthorize%3Fresponse_type%3Dtoken%26client_id%3D6099200%26state%3D93235025%26redirect_uri%3Dhttp%253A%252F%252Fdeveloper.huawei.com%252Fdevunion%252FopenPlatform%252Fhtml%252FhandleLogin.html%253Fp%253Dhttp%25253A%25252F%25252Fdeveloper.huawei.com%25252Fdevunion%25252Fui%25252Fdevplan.html&loginChannel=89000000&reqClientType=89
+这里面是需要实名制登记注册，身份证照片还有手持身份证什么的，审核大约需要一天左右。
+
+###添加应用以及点量HMS权限
