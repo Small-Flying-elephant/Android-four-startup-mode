@@ -1,4 +1,4 @@
-package com.ksmobile.launcher.cheetahcare.utils;
+package com.utils;
 
 import java.math.BigDecimal;
 
@@ -6,7 +6,7 @@ import java.math.BigDecimal;
  * Created by linsheng on 2018/5/7.
  */
 
-public class CheetahArith {
+public class Arith {
         /**
          * 提供精确加法计算的add方法
          *
