@@ -7,7 +7,7 @@ GestureDetector可以使用MotionEvents检测各种手势和事件。GestureDete
 在onTouchEvent（MotionEvent)方法中，确保调用GestureDetector实例的onTouchEvent（MotionEvent）。回调中定义的方法将在事件发生时执行。
 如果侦听onContextClick（MotionEvent），则必须在View的onGenericMotionEvent（MotionEvent）中调用GestureDetector.OnGenericMotionEvent（MotionEvent）。
 
-launcher代码：
+代码：
 
     private GestureDetector mGestureDetector;
     private int mTouchSlop;
