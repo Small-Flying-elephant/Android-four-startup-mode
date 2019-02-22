@@ -9,7 +9,6 @@
       public void onReceive(Context context, Intent intent) {
 
           String action = intent.getAction();
-          LauncherLog.releaseLog(PhoneStateHelper.TAG, "PhoneStateReceiver action: " + action);
           Log.e(PhoneStateHelper.TAG, "PhoneStateReceiver action: " + action);
 
           if (TextUtils.isEmpty(action)) {
@@ -22,11 +21,10 @@
               PhoneStateHelper.instance.transToOtherState(PhoneStateMachine.PHONE_OUT_GOING_STATE, phoneNumber);
           } else {
               String phoneState = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
-              LauncherLog.releaseLog(PhoneStateHelper.TAG, "PhoneStateReceiver onReceive state: " + phoneState);
               Log.e(PhoneStateHelper.TAG, "PhoneStateReceiver onReceive state: " + phoneState);
 
               String extraIncomingNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
-              LauncherLog.releaseLog(PhoneStateHelper.TAG, "PhoneStateReceiver onReceive extraIncomingNumber: " + extraIncomingNumber);
+          
               Log.e(PhoneStateHelper.TAG, "PhoneStateReceiver onReceive extraIncomingNumber: " + extraIncomingNumber);
 
               if (PHONE_STATE_IDLE.equals(phoneState)) {
