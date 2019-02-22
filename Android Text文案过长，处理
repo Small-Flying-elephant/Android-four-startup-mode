@@ -5,7 +5,7 @@ android:ellipsize=”marquee”–以横向滚动方式显示(需获得当前焦
 maxLines则负责TextView高度最多只有一行高
 
 
-下面launcher代码中的使用：
+下面代码中的使用：
     <?xml version="1.0" encoding="utf-8"?>
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
