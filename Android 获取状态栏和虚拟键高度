@@ -47,18 +47,18 @@
                         try {
                             mt = display.getClass().getMethod("getRealHeight");
                         } catch (NoSuchMethodException e3) {
-                            LauncherLog.w(TAG, "getScreenRealHeight Failed: ", e3);
+                            Log.w(TAG, "getScreenRealHeight Failed: ", e3);
                         }
                     }
                     if (mt != null) {
                         try {
                             realHeight = (Integer) mt.invoke(display);
                         } catch (Exception e1) {
-                            LauncherLog.w(TAG, "getScreenRealHeight Failed: ", e1);
+                            Log.w(TAG, "getScreenRealHeight Failed: ", e1);
                         }
                     }
                 } catch (Exception e) {
-                    LauncherLog.w(TAG, "getScreenRealHeight Failed: ", e);
+                    Log.w(TAG, "getScreenRealHeight Failed: ", e);
                 }
                 navigationBarHeight = realHeight - screenHeight;
             }
